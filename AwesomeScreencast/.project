@@ -3,6 +3,7 @@
 	<name>AwesomeScreencast</name>
 	<comment></comment>
 	<projects>
+		<project>slidingmenu</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -1,5 +1,8 @@
 package eu.codlab.screencast;
 
+import com.slidingmenu.lib.SlidingMenu;
+import com.slidingmenu.lib.app.SlidingFragmentActivity;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -9,12 +12,14 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class AwesomeScreencastActivity extends Activity {
+public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_awesome_screencast);
+		
+		this.setBehindContentView(R.layout.activity_awesome_screencast_behind);
 		
 		TextView text = (TextView)findViewById(R.src.file);
 		if(this.getSharedPreferences("file", 0) != null){
@@ -23,6 +28,16 @@ public class AwesomeScreencastActivity extends Activity {
 				file="/sdcard/exemple.avi";
 			text.setText(file);
 		}
+		
+		SlidingMenu sm = getSlidingMenu();
+		sm.setMode(SlidingMenu.LEFT);
+		sm.setSlidingEnabled(true);
+		sm.setShadowWidthRes(R.dimen.shadow_width);
+		sm.setBehindWidthRes(R.dimen.slidingmenu_offset);
+		sm.setFadeDegree(0.90f);
+		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
+		setSlidingActionBarEnabled(false);
+		
 		Button go = (Button)findViewById(R.src.go);
 		go.setOnClickListener(new OnClickListener(){
 
