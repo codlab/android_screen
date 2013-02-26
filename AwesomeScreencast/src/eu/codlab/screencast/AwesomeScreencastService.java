@@ -59,11 +59,11 @@ public class AwesomeScreencastService extends Service{
 	}
 
 	private int getServerFramerate(){
-		return this.getSharedPreferences("server", 0).getInt(Constants.SERVER_FRAMERATE, 320);
+		return this.getSharedPreferences("server", 0).getInt(Constants.SERVER_FRAMERATE, 24);
 	}
 
 	private int getFileFramerate(){
-		return this.getSharedPreferences("file", 0).getInt(Constants.FILE_FRAMERATE, 320);
+		return this.getSharedPreferences("file", 0).getInt(Constants.FILE_FRAMERATE, 24);
 	}
 
 

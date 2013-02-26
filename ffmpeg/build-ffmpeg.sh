@@ -13,7 +13,7 @@ if [ "$NDK" = "" ]; then
 fi
 
 # Download FFmpeg
-wget http://sourceforge.net/p/servestream/code/1175/tree/ffmpeg/ffmpeg-0.11.1-android-2012-09-18.tar.gz?format=raw --output-document=ffmpeg-0.11.1-android-2012-09-18.tar.gz
+curl http://sourceforge.net/p/servestream/code/1175/tree/ffmpeg/ffmpeg-0.11.1-android-2012-09-18.tar.gz?format=raw > ffmpeg-0.11.1-android-2012-09-18.tar.gz
 
 # Unpackage the FFmpeg archive
 tar -xvf ffmpeg-0.11.1-android-2012-09-18.tar.gz
@@ -29,7 +29,7 @@ cp ../arm-build.sh ./
 # Make the build scripts executable
 chmod +x arm-build.sh
 
-sed -i "s/\/data\/data\/com.bambuser.broadcaster\/lib\//$PACKAGE/g" arm-build.sh
+#sed -i "s/\/data\/data\/com.bambuser.broadcaster\/lib\//$PACKAGE/g" arm-build.sh
 
 ./arm-build.sh
 
