@@ -1,9 +1,13 @@
 package eu.codlab.screencast;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -17,6 +21,96 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class AwesomeScreencastService extends Service{
+
+	private int getListeningPort(){
+		return this.getSharedPreferences("server", 0).getInt(Constants.SERVER_PORT, 8090);
+	}
+
+	private int getMaximumConnections(){
+		return this.getSharedPreferences("server", 0).getInt(Constants.SERVER_MAXCONN, 5);
+	}
+
+	private int getMaxClients(){
+		return this.getSharedPreferences("server", 0).getInt("maxclients", 1000);
+	}
+
+	private int getMaxBandWidth(){
+		return this.getSharedPreferences("server", 0).getInt("maxbandwidth", 1000);
+	}
+
+	private int getVideoWidth(){
+		int width = this.getSharedPreferences("server", 0).getInt(Constants.SERVER_WIDTH, 160);
+		if(width % 16 != 0){
+			if(width < 16)
+				return 16;
+			return width - width % 16;
+		}
+		return width;
+	}
+
+	private int getVideoHeight(){
+		int height = this.getSharedPreferences("server", 0).getInt(Constants.SERVER_HEIGHT, 160);
+		if(height % 16 != 0){
+			if(height < 16)
+				return 16;
+			return height - height % 16;
+		}
+		return height;
+	}
+
+	private int getServerFramerate(){
+		return this.getSharedPreferences("server", 0).getInt(Constants.SERVER_FRAMERATE, 320);
+	}
+
+	private int getFileFramerate(){
+		return this.getSharedPreferences("file", 0).getInt(Constants.FILE_FRAMERATE, 320);
+	}
+
+
+	private String getLocalhostURI(){
+		return "http://localhost:"+getListeningPort()+"/live.ffm";
+	}
+
+	private void createConf() throws FileNotFoundException{
+		FileOutputStream out = this.openFileOutput("ffserver.conf", 0);
+		OutputStreamWriter buf = new OutputStreamWriter(out);
+		String str ="Port "+this.getListeningPort()+"\n";
+		str+="BindAddress 0.0.0.0\n";
+		str+="MaxHTTPConnections "+this.getMaximumConnections()+"\n";
+		//str+="MaxClients "+this.getMaxClients()+"\n";
+		str+="CustomLog -\n";
+		str+="NoDaemon\n";
+		str+="<Feed live.ffm>\n";
+		str+="File /cache/live.ffm\n";
+		str+="FileMaxSize 20M\n";
+		str+="NoAudio\n";
+		str+="ACL allow 127.0.0.1\n";
+		str+="</Feed>\n";
+
+		str+="<Stream live.mpeg>\n";
+		str+="Feed live.ffm\n";
+		str+="Format mpeg\n";
+		str+="NoAudio\n";
+		str+="VideoBitRate 64\n";
+		str+="VideoFrameRate "+this.getServerFramerate()+"\n\n";
+		str+="VideoBufferSize 20000\n\n";
+		str+="VideoSize "+this.getVideoWidth()+"x"+this.getVideoHeight()+"\n";
+		str+="# quality ranges - 1-31 (1 = best, 31 = worst)\n";
+		str+="VideoQMin 1\n";
+		str+="VideoGopSize 10\n";
+		str+="</Stream>\n";
+		try {
+			buf.write(str, 0, str.length());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			if(buf != null)buf.close();
+			if(out != null)out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -41,12 +135,12 @@ public class AwesomeScreencastService extends Service{
 						p.waitFor();
 						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg"});
 						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/chmod 755 /system/bin/ffmpeg"});
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/chmod 700 /system/bin/ffmpeg"});
 						p.waitFor();
 						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,ro /system"});
 						p.waitFor();
 						createNotificationStop();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r 24 "+file+" &>> /sdcard/log.txt"});
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getFileFramerate()+" "+file+" &>> /sdcard/log.txt"});
 						Log.d("-","FINSH");
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -54,11 +148,48 @@ public class AwesomeScreencastService extends Service{
 					}
 				}
 			});
+		}else if(intent != null && intent.getStringExtra("server") != null){
+			copyAssets();
+			handler.post(new Runnable(){
+				public void run(){
 
+					Process p;
+					try {
+						Log.d("-","START");
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,rw /system"});
+						p.waitFor();
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg"});
+						p.waitFor();
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/cat /data/data/eu.codlab.screencast/ffserver > /system/bin/ffserver"});
+						p.waitFor();
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/chmod 700 /system/bin/ffmpeg"});
+						p.waitFor();
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/chmod 700 /system/bin/ffserver"});
+						p.waitFor();
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,ro /system"});
+						p.waitFor();
+
+						createConf();
+
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffserver -f /data/data/eu.codlab.screencast/files/ffserver.conf"});
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "sleep 2"});
+						p.waitFor();
+						createNotificationStop();
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getServerFramerate()+" "+getLocalhostURI()+" &>> /sdcard/log.txt"});
+						Log.d("-","FINSH");
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
 		}else if(intent != null && intent.getStringExtra("kill") != null){
 
 			try{
 				Process p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -2 ffmpeg"});
+				p.waitFor();
+
+				p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -9 ffserver"});
 				p.waitFor();
 			} catch (Exception e) {
 				createNotificationStop(e.getMessage());
@@ -98,6 +229,10 @@ public class AwesomeScreencastService extends Service{
 	}
 
 	private void copyAssets() {
+		copyFFMPEG();
+		copyFFSERVER();
+	}
+	private void copyFFMPEG(){
 		AssetManager assetManager = getAssets();
 		InputStream in = null;
 		OutputStream out = null;
@@ -112,6 +247,24 @@ public class AwesomeScreencastService extends Service{
 			out = null;
 		} catch(IOException e) {
 			Log.e("tag", "Failed to copy asset file: ffmpeg", e);
+		}       
+	}
+
+	private void copyFFSERVER(){
+		AssetManager assetManager = getAssets();
+		InputStream in = null;
+		OutputStream out = null;
+		try {
+			in = assetManager.open("ffserver");
+			out = new FileOutputStream("/data/data/eu.codlab.screencast/ffserver");
+			copyFile(in, out);
+			in.close();
+			in = null;
+			out.flush();
+			out.close();
+			out = null;
+		} catch(IOException e) {
+			Log.e("tag", "Failed to copy asset file: ffserver", e);
 		}       
 	}
 	private void copyFile(InputStream in, OutputStream out) throws IOException {

@@ -6,6 +6,7 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,6 +22,10 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 		
 		this.setBehindContentView(R.layout.activity_awesome_screencast_behind);
 		
+		FragmentTransaction t = this.getSupportFragmentManager().beginTransaction();
+		t.replace(R.main.menufragment, new SlidingMenuFragment());
+		t.commit();
+
 		TextView text = (TextView)findViewById(R.src.file);
 		if(this.getSharedPreferences("file", 0) != null){
 			String file = getSharedPreferences("file",0).getString("file", null);
@@ -48,6 +53,21 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 				String new_file = ((TextView)findViewById(R.src.file)).getText().toString();
 				getSharedPreferences("file",0).edit().putString("file", new_file).commit();
 				serviceIntent.putExtra("file", new_file);
+				startService(serviceIntent);
+				finish();
+			}
+			
+		});
+		
+		
+		Button go_server = (Button)findViewById(R.src.go_server);
+		go_server.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				Intent serviceIntent = new Intent(AwesomeScreencastActivity.this, AwesomeScreencastService.class);
+				
+				serviceIntent.putExtra("server", "");
 				startService(serviceIntent);
 				finish();
 			}

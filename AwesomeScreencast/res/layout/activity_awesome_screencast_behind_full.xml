@@ -1,0 +1,188 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".AwesomeScreencastActivity" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="10dp" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/behind_file_infos"
+                android:textAppearance="@android:style/TextAppearance.Large" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/behind_file_framerate"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+
+                <EditText
+                    android:id="@+file/behind_file_framerate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:numeric="decimal"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp" >
+
+                <Button
+                    android:id="@+file/behind_file_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/behind_file_save"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="10dp" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/behind_server_infos"
+                android:textAppearance="@android:style/TextAppearance.Large" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/behind_server_framerate"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+
+                <EditText
+                    android:id="@+server/behind_server_framerate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:numeric="decimal"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/behind_server_listening_port"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+
+                <EditText
+                    android:id="@+server/behind_server_listening_port"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:numeric="decimal"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/behind_server_maxconnections"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+
+                <EditText
+                    android:id="@+server/behind_server_maxconnections"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:numeric="decimal"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/behind_server_video_width"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+
+                <EditText
+                    android:id="@+server/behind_server_video_width"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:numeric="decimal"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/behind_server_video_height"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+
+                <EditText
+                    android:id="@+server/behind_server_video_height"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:numeric="decimal"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="4dp" >
+
+                <Button
+                    android:id="@+server/behind_server_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/behind_server_save"
+                    android:textAppearance="@android:style/TextAppearance.Small" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

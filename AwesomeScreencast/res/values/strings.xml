@@ -3,6 +3,19 @@
 
     <string name="app_name">AwesomeScreencast</string>
     <string name="go">Go screen!</string>
+    <string name="go_server">Go screen http feed !</string>
+    <string name="server_live">accessible on http://your-ip:port/live.flv</string>
     <string name="menu_settings">Settings</string>
 
+    <string name="behind_file_infos">File stream infos</string>
+    <string name="behind_file_framerate">FrameRate (default: 24)</string>
+    <string name="behind_file_save">Save</string>
+
+    <string name="behind_server_infos">Server stream infos</string>
+    <string name="behind_server_framerate">FrameRate (default: 24)</string>
+    <string name="behind_server_video_width">Video Width</string>
+    <string name="behind_server_video_height">Video Height</string>
+    <string name="behind_server_listening_port">Port (default: 8090)</string>
+    <string name="behind_server_maxconnections">MaxConnections (default: 5)</string>
+    <string name="behind_server_save">Save</string>
 </resources>
