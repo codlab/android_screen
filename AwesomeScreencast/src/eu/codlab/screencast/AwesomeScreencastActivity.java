@@ -51,7 +51,7 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 				Intent serviceIntent = new Intent(AwesomeScreencastActivity.this, AwesomeScreencastService.class);
 				
 				String new_file = ((TextView)findViewById(R.src.file)).getText().toString();
-				getSharedPreferences("file",0).edit().putString("file", new_file).commit();
+				getSharedPreferences("file",0).edit().putString(Constants.FILE_OUTPUT, new_file).commit();
 				serviceIntent.putExtra("file", new_file);
 				startService(serviceIntent);
 				finish();
@@ -59,6 +59,21 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 			
 		});
 		
+		Button go_png = (Button)findViewById(R.src.go_png);
+		go_png.setOnClickListener(new OnClickListener(){
+
+			@Override
+			public void onClick(View arg0) {
+				Intent serviceIntent = new Intent(AwesomeScreencastActivity.this, AwesomeScreencastService.class);
+				
+				String new_file = ((TextView)findViewById(R.src.file)).getText().toString();
+				getSharedPreferences("file",0).edit().putString(Constants.FILE_OUTPUT, new_file).commit();
+				serviceIntent.putExtra("file_png", new_file);
+				startService(serviceIntent);
+				finish();
+			}
+			
+		});
 		
 		Button go_server = (Button)findViewById(R.src.go_server);
 		go_server.setOnClickListener(new OnClickListener(){
@@ -75,6 +90,26 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 		});
 	}
 
+	@Override
+	public void onStart(){
+		super.onStart();
+		
+		Thread t = new Thread(){
+			public void run(){
+				try{
+					Thread.sleep(1000);
+				}catch(Exception e){
+				}
+				runOnUiThread(new Runnable(){
+					public void run(){
+						if(false == getSlidingMenu().isMenuShowing())
+							toggle();
+					}
+				});
+			}
+		};
+		t.start();
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

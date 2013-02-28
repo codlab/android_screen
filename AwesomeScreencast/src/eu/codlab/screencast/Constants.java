@@ -1,6 +1,7 @@
 package eu.codlab.screencast;
 
 public class Constants {
+	public final static String FILE_OUTPUT="file_output";
 	public final static String FILE_FRAMERATE="file_framerate";
 	public final static String SERVER_FRAMERATE="server_framerate";
 	public final static String SERVER_PORT="server_port";

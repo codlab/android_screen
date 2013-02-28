@@ -21,7 +21,9 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class AwesomeScreencastService extends Service{
-
+	private String getFileOutput(){
+		return this.getSharedPreferences("file", 0).getString(Constants.FILE_OUTPUT, "/sdcard/exemple.avi");
+	}
 	private int getListeningPort(){
 		return this.getSharedPreferences("server", 0).getInt(Constants.SERVER_PORT, 8090);
 	}
@@ -39,7 +41,7 @@ public class AwesomeScreencastService extends Service{
 	}
 
 	private int getVideoWidth(){
-		int width = this.getSharedPreferences("server", 0).getInt(Constants.SERVER_WIDTH, 160);
+		int width = this.getSharedPreferences("server", 0).getInt(Constants.SERVER_WIDTH, 160) >> 1;
 		if(width % 16 != 0){
 			if(width < 16)
 				return 16;
@@ -49,13 +51,13 @@ public class AwesomeScreencastService extends Service{
 	}
 
 	private int getVideoHeight(){
-		int height = this.getSharedPreferences("server", 0).getInt(Constants.SERVER_HEIGHT, 160);
-		if(height % 16 != 0){
-			if(height < 16)
-				return 16;
-			return height - height % 16;
-		}
-		return height;
+		int height = this.getSharedPreferences("server", 0).getInt(Constants.SERVER_HEIGHT, 160) >> 1;
+			if(height % 16 != 0){
+				if(height < 16)
+					return 16;
+				return height - height % 16;
+			}
+			return height;
 	}
 
 	private int getServerFramerate(){
@@ -82,7 +84,7 @@ public class AwesomeScreencastService extends Service{
 		str+="NoDaemon\n";
 		str+="<Feed live.ffm>\n";
 		str+="File /cache/live.ffm\n";
-		str+="FileMaxSize 20M\n";
+		str+="FileMaxSize 40M\n";
 		str+="NoAudio\n";
 		str+="ACL allow 127.0.0.1\n";
 		str+="</Feed>\n";
@@ -91,13 +93,14 @@ public class AwesomeScreencastService extends Service{
 		str+="Feed live.ffm\n";
 		str+="Format mpeg\n";
 		str+="NoAudio\n";
-		str+="VideoBitRate 64\n";
+		str+="VideoBitRate 100\n";
 		str+="VideoFrameRate "+this.getServerFramerate()+"\n\n";
-		str+="VideoBufferSize 20000\n\n";
-		str+="VideoSize "+this.getVideoWidth()+"x"+this.getVideoHeight()+"\n";
+		str+="VideoBufferSize 10000\n\n";
+		str+="VideoSize "+(this.getVideoWidth())+"x"+(this.getVideoHeight())+"\n";
 		str+="# quality ranges - 1-31 (1 = best, 31 = worst)\n";
 		str+="VideoQMin 1\n";
-		str+="VideoGopSize 10\n";
+		str+="VideoQMax 15\n";
+		//str+="VideoGopSize 10\n";
 		str+="</Stream>\n";
 		try {
 			buf.write(str, 0, str.length());
@@ -122,8 +125,7 @@ public class AwesomeScreencastService extends Service{
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
 		Log.d("onStartCommand","start");
-		final String file = intent!= null ? intent.getStringExtra("file") : null;
-		if(file != null){
+		if(intent != null && intent.getStringExtra("file") != null){
 			copyAssets();
 			handler.post(new Runnable(){
 				public void run(){
@@ -140,7 +142,7 @@ public class AwesomeScreencastService extends Service{
 						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,ro /system"});
 						p.waitFor();
 						createNotificationStop();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getFileFramerate()+" "+file+" &>> /sdcard/log.txt"});
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getFileFramerate()+" "+getFileOutput()+" &>> /sdcard/log.txt"});
 						Log.d("-","FINSH");
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -148,6 +150,38 @@ public class AwesomeScreencastService extends Service{
 					}
 				}
 			});
+		}else if(intent != null && intent.getStringExtra("file_png") != null){
+			copyAssets();
+			handler.post(new Runnable(){
+				public void run(){
+
+					Process p;
+					try {
+						Log.d("-","START");
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "[ ! -f /system/bin/ffmpeg ] && ( /system/bin/mount -o remount,rw /system; /system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg ; /system/bin/chmod 700 /system/bin/ffmpeg ; /system/bin/mount -o remount,ro /system )"});
+						p.waitFor();
+						createNotificationStopFrames();
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "mkdir /cache/pngs; let x=`date +%s`; while test \"1\" = \"1\"; do screencap -p /cache/pngs/img$x.png;let x=$x+1; done;"});
+						Log.d("-","FINSH");
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
+		}else if(intent != null && intent.getStringExtra("kill_png") != null){
+
+			try{
+				createNotificationWaitingFFMPEG();
+				Process p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -2 sh; cat /cache/pngs/img*.png | /system/bin/ffmpeg -y -f image2pipe -vcodec png -r 5 -i - -r 5 "+getFileOutput()+"; rm -rf /cache/pngs"});
+				p.waitFor();
+				kill();
+			} catch (Exception e) {
+				createNotificationStop(e.getMessage());
+				e.printStackTrace();
+			}
+			this.stopForeground(true);
+			this.stopSelf();
 		}else if(intent != null && intent.getStringExtra("server") != null){
 			copyAssets();
 			handler.post(new Runnable(){
@@ -156,17 +190,10 @@ public class AwesomeScreencastService extends Service{
 					Process p;
 					try {
 						Log.d("-","START");
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,rw /system"});
-						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg"});
-						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/cat /data/data/eu.codlab.screencast/ffserver > /system/bin/ffserver"});
-						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/chmod 700 /system/bin/ffmpeg"});
-						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/chmod 700 /system/bin/ffserver"});
-						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,ro /system"});
+						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "[ ! -f /system/bin/ffmpeg ] && [ ! -f /system/bin/ffserver ] && ( /system/bin/mount -o remount,rw /system ; /system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg"
+								+" ; /system/bin/cat /data/data/eu.codlab.screencast/ffserver > /system/bin/ffserver "
+								+"; /system/bin/chmod 700 /system/bin/ffmpeg ; /system/bin/chmod 700 /system/bin/ffserver "
+								+"; /system/bin/mount -o remount,ro /system )"});
 						p.waitFor();
 
 						createConf();
@@ -184,19 +211,7 @@ public class AwesomeScreencastService extends Service{
 				}
 			});
 		}else if(intent != null && intent.getStringExtra("kill") != null){
-
-			try{
-				Process p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -2 ffmpeg"});
-				p.waitFor();
-
-				p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -9 ffserver"});
-				p.waitFor();
-			} catch (Exception e) {
-				createNotificationStop(e.getMessage());
-				e.printStackTrace();
-			}
-			this.stopForeground(true);
-			this.stopSelf();
+			kill();
 		}
 
 
@@ -226,6 +241,16 @@ public class AwesomeScreencastService extends Service{
 		Intent intent = new Intent(this, AwesomeScreencastService.class);
 		intent.putExtra("kill", "dammit");
 		createNotificationStop("Stop", intent);
+	}
+
+	private void createNotificationWaitingFFMPEG(){
+		Intent intent = new Intent(this, AwesomeScreencastService.class);
+		createNotificationStop(getString(R.string.service_waiting), intent);
+	}
+	private void createNotificationStopFrames(){
+		Intent intent = new Intent(this, AwesomeScreencastService.class);
+		intent.putExtra("kill_png", "dammit");
+		createNotificationStop(getString(R.string.service_recording), intent);
 	}
 
 	private void copyAssets() {
@@ -273,6 +298,21 @@ public class AwesomeScreencastService extends Service{
 		while((read = in.read(buffer)) != -1){
 			out.write(buffer, 0, read);
 		}
+	}
+
+	private void kill(){
+		try{
+			Process p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -2 ffmpeg"});
+			p.waitFor();
+
+			p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -9 ffserver"});
+			p.waitFor();
+		} catch (Exception e) {
+			createNotificationStop(e.getMessage());
+			e.printStackTrace();
+		}
+		this.stopForeground(true);
+		this.stopSelf();
 	}
 
 
