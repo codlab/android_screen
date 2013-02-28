@@ -21,13 +21,13 @@
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true" />
 
-        <Button
+        <ImageView
             android:id="@+src/go"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:src="@drawable/record"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="@string/go"><requestFocus/></Button>
+            android:layout_centerVertical="true"/>
         <Button
             android:id="@+src/go_png"
             android:layout_width="wrap_content"
@@ -51,13 +51,13 @@
             android:layout_centerVertical="true"
             android:text="@string/server_live" />
         
-        <Button
+        <ImageView
             android:id="@+src/go_server"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
-            android:text="@string/go_server" />
+            android:src="@drawable/share" />
     </LinearLayout>
     
 </LinearLayout>

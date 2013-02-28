@@ -43,7 +43,7 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 		sm.setTouchModeAbove(SlidingMenu.TOUCHMODE_FULLSCREEN);
 		setSlidingActionBarEnabled(false);
 		
-		Button go = (Button)findViewById(R.src.go);
+		View go = findViewById(R.src.go);
 		go.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -59,7 +59,7 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 			
 		});
 		
-		Button go_png = (Button)findViewById(R.src.go_png);
+		View go_png = findViewById(R.src.go_png);
 		go_png.setOnClickListener(new OnClickListener(){
 
 			@Override
@@ -75,7 +75,7 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 			
 		});
 		
-		Button go_server = (Button)findViewById(R.src.go_server);
+		View go_server = findViewById(R.src.go_server);
 		go_server.setOnClickListener(new OnClickListener(){
 
 			@Override
