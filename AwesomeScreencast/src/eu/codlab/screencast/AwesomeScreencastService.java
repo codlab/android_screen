@@ -177,7 +177,7 @@ public class AwesomeScreencastService extends Service{
 				p.waitFor();
 				kill();
 			} catch (Exception e) {
-				createNotificationStop(e.getMessage());
+				createNotificationStop(getString(R.string.service_fault), e.getMessage());
 				e.printStackTrace();
 			}
 			this.stopForeground(true);
@@ -201,7 +201,7 @@ public class AwesomeScreencastService extends Service{
 						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffserver -f /data/data/eu.codlab.screencast/files/ffserver.conf"});
 						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "sleep 2"});
 						p.waitFor();
-						createNotificationStop();
+						createNotificationStopStream();
 						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getServerFramerate()+" "+getLocalhostURI()+" &>> /sdcard/log.txt"});
 						Log.d("-","FINSH");
 					} catch (Exception e) {
@@ -220,37 +220,42 @@ public class AwesomeScreencastService extends Service{
 		return Service.START_STICKY;
 	}
 
-	private void createNotificationStop(String text,Intent intent){
+	private void createNotificationStop(String text, String sub_text, Intent intent){
 		NotificationManager notifManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 
-		final Notification notif = new Notification(R.drawable.ic_launcher, text, System.currentTimeMillis());
+		final Notification notif = new Notification(R.drawable.notif, text, System.currentTimeMillis());
 
 		PendingIntent contentIntent = PendingIntent.getService(this, 42, intent, 0);
 
 		notif.setLatestEventInfo(this, text,
-				text, contentIntent);
+				sub_text, contentIntent);
 		//notifManager.notify(42, notif);
 		startForeground(42, notif);
 	}
 
-	private void createNotificationStop(String text){
+	private void createNotificationStop(String text, String sub_text){
 		Intent intent = new Intent(this, AwesomeScreencastService.class);
-		createNotificationStop(text, intent);
+		createNotificationStop(text, sub_text, intent);
+	}
+	private void createNotificationStopStream(){
+		Intent intent = new Intent(this, AwesomeScreencastService.class);
+		intent.putExtra("kill", "dammit");
+		createNotificationStop(getString(R.string.service_streaming), getString(R.string.stop_streaming_video));
 	}
 	private void createNotificationStop(){
 		Intent intent = new Intent(this, AwesomeScreencastService.class);
 		intent.putExtra("kill", "dammit");
-		createNotificationStop("Stop", intent);
+		createNotificationStop(getString(R.string.service_recording), getString(R.string.stop_recording_video));
 	}
 
 	private void createNotificationWaitingFFMPEG(){
 		Intent intent = new Intent(this, AwesomeScreencastService.class);
-		createNotificationStop(getString(R.string.service_waiting), intent);
+		createNotificationStop(getString(R.string.service_waiting), getString(R.string.service_waiting_ffmpeg), intent);
 	}
 	private void createNotificationStopFrames(){
 		Intent intent = new Intent(this, AwesomeScreencastService.class);
 		intent.putExtra("kill_png", "dammit");
-		createNotificationStop(getString(R.string.service_recording), intent);
+		createNotificationStop(getString(R.string.service_recording), getString(R.string.stop_recording_frames), intent);
 	}
 
 	private void copyAssets() {
@@ -308,7 +313,7 @@ public class AwesomeScreencastService extends Service{
 			p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -9 ffserver"});
 			p.waitFor();
 		} catch (Exception e) {
-			createNotificationStop(e.getMessage());
+			createNotificationStop(getString(R.string.service_fault), e.getMessage());
 			e.printStackTrace();
 		}
 		this.stopForeground(true);

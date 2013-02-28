@@ -11,7 +11,6 @@
     <string name="behind_file_infos">File stream infos</string>
     <string name="behind_file_framerate">FrameRate (default: 24)</string>
     <string name="behind_file_save">Save</string>
-
     <string name="behind_server_infos">Server stream infos</string>
     <string name="behind_server_framerate">FrameRate (default: 24)</string>
     <string name="behind_server_video_width">Video Width</string>
@@ -20,6 +19,15 @@
     <string name="behind_server_maxconnections">MaxConnections (default: 5)</string>
     <string name="behind_server_save">Save</string>
     
-    <string name="service_recording">Recording frames ...</string>
-	<string name="service_waiting">Waiting for FFMPEG...</string>
+    <string name="service_fault">An error occured</string>
+    <string name="service_recording">Recording video</string>
+    <string name="service_streaming">Streaming video</string>
+    <string name="service_waiting">Waiting for FFMPEG...</string>
+    
+    <string name="service_waiting_ffmpeg">Waiting for ffmpeg...</string>
+    
+    <string name="stop_recording_frames">Click to stop recording png frames</string>
+    <string name="stop_recording_video">Click to stop recording video</string>
+    <string name="stop_streaming_video">Click to stop streaming video</string>
+
 </resources>
