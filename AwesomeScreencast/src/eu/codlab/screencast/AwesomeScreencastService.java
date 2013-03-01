@@ -21,6 +21,24 @@ import android.os.IBinder;
 import android.util.Log;
 
 public class AwesomeScreencastService extends Service{
+	public static int STATE_RECORDING =0;
+	public static int STATE_STOP=1;
+
+	private static int _state = STATE_STOP;
+
+	private void setState(int state){
+		_state = state;
+	}
+
+	private int getState(){
+		return _state;
+	}
+
+	private boolean isRecording(){
+		return this.STATE_RECORDING == getState();
+	}
+
+
 	private String getFileOutput(){
 		return this.getSharedPreferences("file", 0).getString(Constants.FILE_OUTPUT, "/sdcard/exemple.avi");
 	}
@@ -125,52 +143,68 @@ public class AwesomeScreencastService extends Service{
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
 		Log.d("onStartCommand","start");
+
 		if(intent != null && intent.getStringExtra("file") != null){
+			Log.d("onStartCommand","file");
 			copyAssets();
-			handler.post(new Runnable(){
-				public void run(){
+			if(isRecording() == false){
+				setState(STATE_RECORDING);
+				handler.post(new Runnable(){
+					public void run(){
 
-					Process p;
-					try {
-						Log.d("-","START");
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,rw /system"});
-						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg"});
-						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/chmod 700 /system/bin/ffmpeg"});
-						p.waitFor();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,ro /system"});
-						p.waitFor();
-						createNotificationStop();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getFileFramerate()+" "+getFileOutput()+" &>> /sdcard/log.txt"});
-						Log.d("-","FINSH");
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Process p;
+						try {
+							Log.d("-","START");
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,rw /system"});
+							p.waitFor();
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg"});
+							p.waitFor();
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/chmod 700 /system/bin/ffmpeg"});
+							p.waitFor();
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,ro /system"});
+							p.waitFor();
+							createNotificationStop();
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getFileFramerate()+" "+getFileOutput()+" &>> /sdcard/log.txt"});
+							Log.d("-","FINSH");
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
-				}
-			});
+				});
+
+			}else{
+				kill();
+			}
 		}else if(intent != null && intent.getStringExtra("file_png") != null){
-			copyAssets();
-			handler.post(new Runnable(){
-				public void run(){
+			Log.d("onStartCommand","file_png");
+			if(isRecording() == false){
+				setState(STATE_RECORDING);
+				copyAssets();
+				handler.post(new Runnable(){
+					public void run(){
 
-					Process p;
-					try {
-						Log.d("-","START");
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "[ ! -f /system/bin/ffmpeg ] && ( /system/bin/mount -o remount,rw /system; /system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg ; /system/bin/chmod 700 /system/bin/ffmpeg ; /system/bin/mount -o remount,ro /system )"});
-						p.waitFor();
-						createNotificationStopFrames();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "mkdir /cache/pngs; let x=`date +%s`; while test \"1\" = \"1\"; do screencap -p /cache/pngs/img$x.png;let x=$x+1; done;"});
-						Log.d("-","FINSH");
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						Process p;
+						try {
+							Log.d("-","START");
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "[ ! -f /system/bin/ffmpeg ] && ( /system/bin/mount -o remount,rw /system; /system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg ; /system/bin/chmod 700 /system/bin/ffmpeg ; /system/bin/mount -o remount,ro /system )"});
+							p.waitFor();
+							createNotificationStopFrames();
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "mkdir /cache/pngs; let x=`date +%s`; while test \"1\" = \"1\"; do screencap -p /cache/pngs/img$x.png;let x=$x+1; done;"});
+							Log.d("-","FINSH");
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
-				}
-			});
+				});
+
+			}else{
+				kill();
+			}
 		}else if(intent != null && intent.getStringExtra("kill_png") != null){
 
+			Log.d("onStartCommand","kill_png");
 			try{
 				createNotificationWaitingFFMPEG();
 				Process p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -2 sh; cat /cache/pngs/img*.png | /system/bin/ffmpeg -y -f image2pipe -vcodec png -r 5 -i - -r 5 "+getFileOutput()+"; rm -rf /cache/pngs"});
@@ -183,34 +217,43 @@ public class AwesomeScreencastService extends Service{
 			this.stopForeground(true);
 			this.stopSelf();
 		}else if(intent != null && intent.getStringExtra("server") != null){
-			copyAssets();
-			handler.post(new Runnable(){
-				public void run(){
+			Log.d("onStartCommand","server");
+			if(isRecording() == false){
+				setState(STATE_RECORDING);
+				copyAssets();
+				handler.post(new Runnable(){
+					public void run(){
 
-					Process p;
-					try {
-						Log.d("-","START");
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "[ ! -f /system/bin/ffmpeg ] && [ ! -f /system/bin/ffserver ] && ( /system/bin/mount -o remount,rw /system ; /system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg"
-								+" ; /system/bin/cat /data/data/eu.codlab.screencast/ffserver > /system/bin/ffserver "
-								+"; /system/bin/chmod 700 /system/bin/ffmpeg ; /system/bin/chmod 700 /system/bin/ffserver "
-								+"; /system/bin/mount -o remount,ro /system )"});
-						p.waitFor();
+						Process p;
+						try {
+							Log.d("-","START");
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "[ ! -f /system/bin/ffmpeg ] && [ ! -f /system/bin/ffserver ] && ( /system/bin/mount -o remount,rw /system ; /system/bin/cat /data/data/eu.codlab.screencast/ffmpeg > /system/bin/ffmpeg"
+									+" ; /system/bin/cat /data/data/eu.codlab.screencast/ffserver > /system/bin/ffserver "
+									+"; /system/bin/chmod 700 /system/bin/ffmpeg ; /system/bin/chmod 700 /system/bin/ffserver "
+									+"; /system/bin/mount -o remount,ro /system )"});
+							p.waitFor();
 
-						createConf();
+							createConf();
 
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffserver -f /data/data/eu.codlab.screencast/files/ffserver.conf"});
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "sleep 2"});
-						p.waitFor();
-						createNotificationStopStream();
-						p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getServerFramerate()+" "+getLocalhostURI()+" &>> /sdcard/log.txt"});
-						Log.d("-","FINSH");
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffserver -f /data/data/eu.codlab.screencast/files/ffserver.conf"});
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "sleep 2"});
+							p.waitFor();
+							createNotificationStopStream();
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getServerFramerate()+" "+getLocalhostURI()+" &>> /sdcard/log.txt"});
+							Log.d("-","FINSH");
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					}
-				}
-			});
+				});
+
+
+			}else{
+				kill();
+			}
 		}else if(intent != null && intent.getStringExtra("kill") != null){
+			Log.d("onStartCommand","kill");
 			kill();
 		}
 
@@ -225,10 +268,9 @@ public class AwesomeScreencastService extends Service{
 
 		final Notification notif = new Notification(R.drawable.notif, text, System.currentTimeMillis());
 
-		PendingIntent contentIntent = PendingIntent.getService(this, 42, intent, 0);
+		PendingIntent contentIntent = PendingIntent.getService(this, 0, intent, 0);
 
-		notif.setLatestEventInfo(this, text,
-				sub_text, contentIntent);
+		notif.setLatestEventInfo(this, text, sub_text, contentIntent);
 		//notifManager.notify(42, notif);
 		startForeground(42, notif);
 	}
@@ -306,6 +348,7 @@ public class AwesomeScreencastService extends Service{
 	}
 
 	private void kill(){
+		setState(STATE_STOP);
 		try{
 			Process p =  Runtime.getRuntime().exec(new String[]{"su","-c","/system/xbin/killall -2 ffmpeg"});
 			p.waitFor();
