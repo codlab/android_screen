@@ -8,13 +8,23 @@
         android:minSdkVersion="7"
         android:targetSdkVersion="16" />
 
+    <!--
+         Uses android.permission.INTERNET to enable to show the current
+    	ip in the notification bar
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
+        android:hardwareAccelerated="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" android:hardwareAccelerated="true">
-        <service
-            android:name="eu.codlab.screencast.AwesomeScreencastService" />
+        android:theme="@style/AppTheme" >
+        <!-- TODO change services to internal broadcast -->
+        <service android:name="eu.codlab.screencast.RecordService" />
+        <service android:name="eu.codlab.screencast.StreamService" />
+        <service android:name="eu.codlab.screencast.AwesomeScreencastService" />
+
         <activity
             android:name="eu.codlab.screencast.AwesomeScreencastActivity"
             android:label="@string/app_name" >
@@ -28,15 +38,29 @@
             android:name="eu.codlab.screencast.AwesomeScreencastActivityStop"
             android:label="@string/app_name" >
         </activity>
-        
-        <receiver android:name=".RecordWidgetProvider"
-			android:label="@string/app_name">
-			<intent-filter>
-				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-			</intent-filter>
-			<meta-data android:name="android.appwidget.provider"
-				android:resource="@xml/widget_record_provider" />
-		</receiver>
+
+        <receiver
+            android:name=".RecordWidgetProvider"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_record_provider" />
+        </receiver>
+        <receiver
+            android:name=".StreamWidgetProvider"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_stream_provider" />
+        </receiver>
     </application>
 
 </manifest>

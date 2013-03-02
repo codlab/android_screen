@@ -5,6 +5,6 @@
    		 android:minResizeWidth="96dip"
    		 android:minResizeHeight="96dip"
    		 android:updatePeriodMillis="0"
-         android:previewImage="@drawable/record"
-   		 android:initialLayout="@layout/widget_record"
+         android:previewImage="@drawable/stream"
+   		 android:initialLayout="@layout/widget_stream"
 />

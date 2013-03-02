@@ -8,6 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -91,6 +95,26 @@ public class AwesomeScreencastService extends Service{
 		return "http://localhost:"+getListeningPort()+"/live.ffm";
 	}
 
+	private String getLocalIp() {
+		try {
+			for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+				NetworkInterface intf = en.nextElement();
+				for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+					InetAddress inetAddress = enumIpAddr.nextElement();
+					if (inetAddress.isSiteLocalAddress() && !inetAddress.isLoopbackAddress()) {
+						return inetAddress.getHostAddress().toString();
+					}
+				}
+			}
+		} catch (SocketException ex) {
+		}
+		return "127.0.0.1";
+	}
+
+	private String getUrl(){
+		return "http://"+getLocalIp()+":"+this.getListeningPort()+"/live.mpeg";
+	}
+
 	private void createConf() throws FileNotFoundException{
 		FileOutputStream out = this.openFileOutput("ffserver.conf", 0);
 		OutputStreamWriter buf = new OutputStreamWriter(out);
@@ -142,8 +166,7 @@ public class AwesomeScreencastService extends Service{
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId){
-		Log.d("onStartCommand","start");
-
+		Log.d("receiving command",startId+"");
 		if(intent != null && intent.getStringExtra("file") != null){
 			Log.d("onStartCommand","file");
 			copyAssets();
@@ -255,12 +278,14 @@ public class AwesomeScreencastService extends Service{
 		}else if(intent != null && intent.getStringExtra("kill") != null){
 			Log.d("onStartCommand","kill");
 			kill();
+		}else{
+			if(isRecording()){
+				kill();
+			}
 		}
-
-
 		super.onStartCommand(intent, flags, startId);
 
-		return Service.START_STICKY;
+		return Service.START_NOT_STICKY;
 	}
 
 	private void createNotificationStop(String text, String sub_text, Intent intent){
@@ -282,7 +307,7 @@ public class AwesomeScreencastService extends Service{
 	private void createNotificationStopStream(){
 		Intent intent = new Intent(this, AwesomeScreencastService.class);
 		intent.putExtra("kill", "dammit");
-		createNotificationStop(getString(R.string.service_streaming), getString(R.string.stop_streaming_video));
+		createNotificationStop(getString(R.string.service_streaming), getUrl()+" - "+getString(R.string.stop_streaming_video));
 	}
 	private void createNotificationStop(){
 		Intent intent = new Intent(this, AwesomeScreencastService.class);
