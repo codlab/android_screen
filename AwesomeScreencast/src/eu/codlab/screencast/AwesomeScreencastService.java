@@ -1,7 +1,6 @@
 package eu.codlab.screencast;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -29,6 +28,8 @@ public class AwesomeScreencastService extends Service{
 	public static int STATE_STOP=1;
 
 	private static int _state = STATE_STOP;
+	private String defaultDestFile = AwesomeScreencastActivity.exampleAviPath.getAbsolutePath();
+	private String defaultDestFolder = AwesomeScreencastActivity.sdCard.getAbsolutePath();
 
 	private void setState(int state){
 		_state = state;
@@ -42,9 +43,14 @@ public class AwesomeScreencastService extends Service{
 		return this.STATE_RECORDING == getState();
 	}
 
+	private String getLogDestination(){
+		String logFolder = this.getSharedPreferences("file", 0).getString("CHOOSER_FOLDER", defaultDestFile);
+		File log = new File(logFolder, "log.txt");
+		return log.getAbsolutePath();
+	}
 
 	private String getFileOutput(){
-		return this.getSharedPreferences("file", 0).getString(Constants.FILE_OUTPUT, "/sdcard/exemple.avi");
+		return this.getSharedPreferences("file", 0).getString(Constants.FILE_OUTPUT, defaultDestFile);
 	}
 	private int getListeningPort(){
 		return this.getSharedPreferences("server", 0).getInt(Constants.SERVER_PORT, 8090);
@@ -187,7 +193,7 @@ public class AwesomeScreencastService extends Service{
 							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/mount -o remount,ro /system"});
 							p.waitFor();
 							createNotificationStop();
-							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getFileFramerate()+" "+getFileOutput()+" &>> /sdcard/log.txt"});
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getFileFramerate()+" "+getFileOutput()+" &>> " + getLogDestination()});
 							Log.d("-","FINSH");
 						} catch (Exception e) {
 							// TODO Auto-generated catch block
@@ -262,7 +268,8 @@ public class AwesomeScreencastService extends Service{
 							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "sleep 2"});
 							p.waitFor();
 							createNotificationStopStream();
-							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getServerFramerate()+" "+getLocalhostURI()+" &>> /sdcard/log.txt"});
+							
+							p = Runtime.getRuntime().exec(new String[]{"su", "-c", "/system/bin/ffmpeg -y -f fbdev -i /dev/graphics/fb0 -r "+getServerFramerate()+" "+getLocalhostURI()+" &>> " + getLogDestination()});
 							Log.d("-","FINSH");
 						} catch (Exception e) {
 							// TODO Auto-generated catch block

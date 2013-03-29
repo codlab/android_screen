@@ -5,8 +5,8 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="16" />
+        android:minSdkVersion="8"
+        android:targetSdkVersion="17" />
 
     <!--
          Uses android.permission.INTERNET to enable to show the current
@@ -27,6 +27,7 @@
 
         <activity
             android:name="eu.codlab.screencast.AwesomeScreencastActivity"
+            android:configChanges="locale|orientation"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,6 +62,15 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_stream_provider" />
         </receiver>
+        
+        <service android:name="group.pals.android.lib.ui.filechooser.services.LocalFileProvider" />
+
+        <activity
+            android:name="group.pals.android.lib.ui.filechooser.FileChooserActivity"
+            android:configChanges="locale|orientation|screenSize|keyboard|keyboardHidden"
+            android:exported="false" >
+        </activity>
+        
     </application>
 
 </manifest>

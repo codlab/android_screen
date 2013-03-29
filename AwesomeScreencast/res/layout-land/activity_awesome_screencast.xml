@@ -4,114 +4,62 @@
     android:layout_height="match_parent"
     android:focusable="true"
     android:focusableInTouchMode="true"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     tools:context=".AwesomeScreencastActivity" >
+
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/one"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:orientation="vertical" >
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:orientation="vertical" >
+        <EditText
+            android:id="@+src/file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:inputType="textUri|textNoSuggestions"
+            android:textIsSelectable="true" />
 
-            <EditText
-                android:id="@+src/file"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true" />
+        <Button
+            android:id="@+src/fc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:onClick="openFilechooser"
+            android:text="@string/fc" />
 
-        </LinearLayout>
+        <ImageView
+            android:id="@+src/go"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/cd"
+            android:src="@drawable/record"
+            android:textIsSelectable="true" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:orientation="vertical" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="@string/server_live" />
-
-        </LinearLayout>
-    </LinearLayout>
-    
-    
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal" >
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:id="@+src/go"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/record" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:orientation="vertical" >
-
-            <ImageView
-                android:id="@+src/go_server"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:src="@drawable/share" />
-        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/two"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:layout_gravity="center_horizontal"
+        android:orientation="vertical" >
+        
+        <Button
+            android:id="@+src/go_png"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/go_png" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:orientation="vertical" >
-
-            <Button
-                android:id="@+src/go_png"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:text="@string/go_png" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center_vertical|center_horizontal"
-            android:orientation="vertical" >
-        </LinearLayout>
+        <TextView
+            android:id="@+src/go_server"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableBottom="@drawable/share"
+            android:text="@string/server_live" />
     </LinearLayout>
 
 </LinearLayout>

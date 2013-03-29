@@ -1,8 +1,6 @@
 package eu.codlab.screencast;
 
 
-import com.actionbarsherlock.app.SherlockFragment;
-
 import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -16,7 +14,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+
+import com.actionbarsherlock.app.SherlockFragment;
 
 public class SlidingMenuFragment extends SherlockFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
