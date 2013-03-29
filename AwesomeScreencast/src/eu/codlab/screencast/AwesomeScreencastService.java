@@ -44,7 +44,7 @@ public class AwesomeScreencastService extends Service{
 	}
 
 	private String getLogDestination(){
-		String logFolder = this.getSharedPreferences("file", 0).getString("CHOOSER_FOLDER", defaultDestFile);
+		String logFolder = this.getSharedPreferences("file", 0).getString("CHOOSER_FOLDER", defaultDestFolder);
 		File log = new File(logFolder, "log.txt");
 		return log.getAbsolutePath();
 	}
