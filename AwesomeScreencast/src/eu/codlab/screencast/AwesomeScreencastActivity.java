@@ -23,7 +23,7 @@ import com.slidingmenu.lib.app.SlidingFragmentActivity;
 
 public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 
-	public static final String exampleAvi = "example.avi";
+	public static final String exampleAvi = "screencast.avi";
 	public static final File sdCard = Environment.getExternalStorageDirectory();
 	public static final File exampleAviPath = new File(sdCard, exampleAvi);
 	private TextView text;
@@ -43,8 +43,7 @@ public class AwesomeScreencastActivity extends SlidingFragmentActivity {
 		text = (TextView)findViewById(R.src.file);
 		if(this.getSharedPreferences("file", 0) != null){
 			String file = getSharedPreferences("file",0).getString("file", null);
-			if(file == null)
-				file = exampleAviPath.getAbsolutePath();
+			if(file == null) file = exampleAviPath.getAbsolutePath();
 			text.setText(file);
 		}
 		
