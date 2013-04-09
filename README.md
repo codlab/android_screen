@@ -9,12 +9,12 @@ modifications with this fork
     - various hardcoded paths changed with android.os.Environment paths;
     - block SlidingMenu if exiting from the filechooser.
     
-KNOWN ISSUE (not fork-related. It's from the original repo):
+known issue (not fork-related. It's from the original repo):
 ==============
     It seems that some process continue to run also after stopping the App (also after force-closing it);
     probably it's FFmpeg, or maybe it's related to it. I've been not able to precisely track what it is, for the moment.
-    Be aware that a reboot it's needed, in my experience, no prevent quick battery drain (and device heating), after running the app
-    You've been warned!  ;)
+    Be aware that a reboot it's needed, in my experience, to prevent quick battery drain (and device heating), 
+    after running the app.    You've been warned!  ;)
 
 android_screen
 ==============
