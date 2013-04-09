@@ -1,3 +1,21 @@
+modifications with this fork
+==============
+    - RootTools library used to issue all "su" commands;
+    - use of NotificationCompat.Builder;
+    - high quality Xvid as FFmpeg output;
+    - android-filechooser for destination folder selection;
+    - lots of imports removed (by eclipse...);
+    - vertical and landscape layouts redesigned (mostly rearranged);
+    - various hardcoded paths changed with android.os.Environment paths;
+    - block SlidingMenu if exiting from the filechooser.
+    
+known issue (not fork-related. It's from the original repo):
+==============
+    It seems that some process continue to run also after stopping the App (also after force-closing it);
+    probably it's FFmpeg, or maybe it's related to it. I've been not able to precisely track what it is, for the moment.
+    Be aware that a reboot it's needed, in my experience, to prevent quick battery drain (and device heating), 
+    after running the app.    You've been warned!  ;)
+
 android_screen
 ==============
 Help you to record your screen
